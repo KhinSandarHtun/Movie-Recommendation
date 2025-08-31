@@ -28,22 +28,40 @@ st.title("🎬 Content-Based Movie Recommendation System")
 st.write("Select a movie to get recommendations based on genres.")
 
 movie_name = st.selectbox("Choose a movie:", movies['title'].values)
+# Slider
+#num_rec = st.slider("Number of recommendations:", min_value=1, max_value=50, value=5)
+# ------------------------
+# Session state for slider
+# ------------------------
+if "num_rec" not in st.session_state:
+    st.session_state.num_rec = 5  # default
+# ------------------------  
+# Quick-select buttons
+# ------------------------  
+st.write("Quickly choose:")
+cols = st.columns(10)
+button_values = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
-num_rec = st.slider("Number of recommendations:", min_value=1, max_value=50, value=5)
+for col, val in zip(cols, button_values):
+    if col.button(str(val)):
+        st.session_state.num_rec = val  # update slider value
+        #num_rec = val   # override slider value
 # ------------------------
-# Display movie genre
+# Slider (uses session_state value)
 # ------------------------
-#if movie_name in movie_dict:
-#    movie_index = movie_dict[movie_name]
-#    genre = movies.iloc[movie_index]["genre_text"]
-#    st.subheader(f"Genres: {genre}")
+num_rec = st.slider(
+    "Number of recommendations:",
+   min_value=1, max_value=50,
+   value=st.session_state.num_rec,
+    key="num_rec"
+)
 # ------------------------
 # Recommendation Function
 # ------------------------
 def get_similar_movies(movie_name, num=5):
     if movie_name not in movie_dict:
         return []
-
+    
     movie_index = movie_dict[movie_name]
     distances = content_sim[movie_index]
     movie_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:num + 1]
@@ -59,8 +77,7 @@ def get_similar_movies(movie_name, num=5):
             "Genres": movie['genre_text'],
             "Score": round(score, 4)
         })
-    return selected_genre,rec_movies
-
+    return selected_genre, rec_movies
 # ------------------------
 # Display Recommendations
 # ------------------------
@@ -69,10 +86,8 @@ if st.button("Recommend"):
     if recommendations:
         st.subheader(f"Movie Name :'{movie_name}'")
         st.subheader(f"**Movie genre:** {selected_genre}")
-       # st.markdown("---")
-        st.subheader("Recommended movies:")
+        st.subheader(f"Top {num_rec} Recommended movies:")
         rec_df = pd.DataFrame(recommendations)
-        #st.table(rec_df)
         st.dataframe(rec_df, hide_index=True)
 
     else:

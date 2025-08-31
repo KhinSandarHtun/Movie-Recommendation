@@ -7,6 +7,7 @@ import pandas as pd
 def load():
     ratings = pd.read_csv(file_path + "u.data", sep="\t", names=["user_id","movie_id","rating","ts"])
     movies_raw = pd.read_csv(file_path + "u.item", sep="|", header=None, encoding="latin-1")
+    print(movies_raw.head())
     genre_cols = ["unknown","Action","Adventure","Animation","Children","Comedy","Crime","Documentary",
                   "Drama","Fantasy","Film-Noir","Horror","Musical","Mystery","Romance","Sci-Fi","Thriller",
                   "War","Western"]
